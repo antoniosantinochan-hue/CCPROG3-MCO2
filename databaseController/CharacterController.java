@@ -1,6 +1,8 @@
 package databaseController;
 
 import databaseModel.*;
+import databaseModel.Character;
+import databaseModel.Exceptions.NoCrewException;
 import databaseView.*;
 
 public class CharacterController {
@@ -25,7 +27,7 @@ public class CharacterController {
         this.civilianView = civilianView;
     }
 
-    public void addCharacter(){
+    protected void addCharacter(){
         int faction;
 
         faction = characterView.promptForFaction();
@@ -62,7 +64,7 @@ public class CharacterController {
         }
     }
 
-    public void addPirate(String name, String alias,
+    private void addPirate(String name, String alias,
                           String origin, String status,
                           double balance){
         double bounty;
@@ -71,9 +73,11 @@ public class CharacterController {
         Pirate temp = new Pirate(name, alias, origin, status,
                 characterRegistryModel.getCharacterCount(),bounty);
         characterRegistryModel.addCharacter(temp);
+        characterView.sendSuccessMessage(1,
+                temp);
     }
 
-    public void addMarine(String name, String alias,
+    private void addMarine(String name, String alias,
                           String origin, String status,
                           double balance){
         String rank;
@@ -82,9 +86,11 @@ public class CharacterController {
         Marine temp = new Marine(name, alias, origin, status,
                 characterRegistryModel.getCharacterCount(), rank);
         characterRegistryModel.addCharacter(temp);
+        characterView.sendSuccessMessage(1,
+                temp);
     }
 
-    public void addPirateHunter(String name, String alias,
+    private void addPirateHunter(String name, String alias,
                           String origin, String status,
                           double balance){
         String style;
@@ -96,9 +102,11 @@ public class CharacterController {
         PirateHunter temp = new PirateHunter(name, alias, origin,
                 status, characterRegistryModel.getCharacterCount(), style, count);
         characterRegistryModel.addCharacter(temp);
+        characterView.sendSuccessMessage(1,
+                temp);
     }
 
-    public void addCivilian(String name, String alias,
+    private void addCivilian(String name, String alias,
                           String origin, String status,
                           double balance){
         String profession, residence;
@@ -110,6 +118,157 @@ public class CharacterController {
                 status, characterRegistryModel.getCharacterCount(),
                 profession, residence);
         characterRegistryModel.addCharacter(temp);
+        characterView.sendSuccessMessage(1,
+                temp);
     }
 
+    protected void displayCharacters(){
+        characterView.displayCharacterRegistry(
+                characterRegistryModel.getCharacterRegistry());
+    }
+
+    protected void viewProfile(){
+        int choice;
+
+        displayCharacters();
+        choice = characterView.promptForCharacter(
+                characterRegistryModel.getCharacterRegistry());
+
+
+        if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof Pirate){
+            pirateView.printPirateDetails(
+                    (Pirate) characterRegistryModel.getCharacterRegistry().
+                    get(choice-1));
+        }
+
+        else if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof Marine){
+            marineView.printMarineDetails(
+                    (Marine) characterRegistryModel.getCharacterRegistry().
+                            get(choice-1));
+        }
+
+        else if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof PirateHunter){
+            pirateHunterView.printPirateHunterDetails(
+                    (PirateHunter) characterRegistryModel.getCharacterRegistry().
+                            get(choice-1));
+        }
+
+        else if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof Civilian){
+            civilianView.printCivilianDetails(
+                    (Civilian) characterRegistryModel.getCharacterRegistry().
+                            get(choice-1));
+        }
+    }
+
+    protected void modifyCharacter(){
+        int choice, action;
+
+        displayCharacters();
+        choice = characterView.promptForCharacter(
+                characterRegistryModel.getCharacterRegistry());
+
+
+        if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof Pirate){
+            pirateView.printPirateDetails(
+                    (Pirate) characterRegistryModel.getCharacterRegistry().
+                            get(choice-1));
+            action = characterView.displayModifyOptions(1);
+        }
+
+        else if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof Marine){
+            marineView.printMarineDetails(
+                    (Marine) characterRegistryModel.getCharacterRegistry().
+                            get(choice-1));
+            action = characterView.displayModifyOptions(2);
+        }
+
+        else if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof PirateHunter){
+            pirateHunterView.printPirateHunterDetails(
+                    (PirateHunter) characterRegistryModel.getCharacterRegistry().
+                            get(choice-1));
+            characterView.displayModifyOptions(3);
+        }
+
+        else if (characterRegistryModel.getCharacterRegistry().
+                get(choice-1) instanceof Civilian){
+            civilianView.printCivilianDetails(
+                    (Civilian) characterRegistryModel.getCharacterRegistry().
+                            get(choice-1));
+            characterView.displayModifyOptions(4);
+        }
+    }
+
+    private void changeAttributes(int mode, int action, Character c) throws NoCrewException {
+        if (action >= 1 && action <= 5){
+            if (action == 1){
+                c.setName(characterView.promptForName());
+            }
+
+            else if (action == 2){
+                c.setAlias(characterView.promptForAlias());
+            }
+
+            else if (action == 3){
+                c.setStatus(characterView.promptForStatus());
+            }
+
+            else if (action == 4){
+                c.setOrigin(characterView.promptForOrigin());
+            }
+
+            else{
+                c.setWallet(characterView.promptForBalance());
+            }
+        }
+
+        else if (action == 6){
+            if (mode == 1){
+                ((Pirate) c).assignBounty(pirateView.promptForBounty());
+            }
+
+            else if (mode == 2){
+                ((Marine) c).promoteRank(marineView.promptForRank());
+            }
+
+            else if (mode == 3){
+                ((PirateHunter) c).setCombatStyle(
+                        pirateHunterView.promptForCombatStyle());
+            }
+
+            else{
+                ((Civilian) c).setProfession(
+                        civilianView.promptForProfession());
+            }
+        }
+
+        else{
+            if (mode == 1){
+                ((Pirate) c).setRole(pirateView.promptForRole());
+            }
+
+            else if (mode == 3){
+
+            }
+        }
+    }
+
+    protected void deleteCharacter(){
+        int choice;
+
+        displayCharacters();
+        choice = characterView.promptForCharacter(
+                characterRegistryModel.getCharacterRegistry());
+
+        characterView.sendSuccessMessage(2,
+                characterRegistryModel.getCharacterRegistry().
+                get(choice-1));
+        characterRegistryModel.removeCharacter(choice-1);
+    }
 }
