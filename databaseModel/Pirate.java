@@ -1,4 +1,6 @@
 package databaseModel;
+import databaseModel.Exceptions.NoCrewException;
+
 import java.util.Scanner;
 
 /**
@@ -170,8 +172,17 @@ public class Pirate extends Character{
      * This method sets the pirate's role.
      *         Returns : None
      * @param pRole the inputted role of the pirate
-     * @param myObj the scanner object initiated in the main class
      */
+    public void setRole(String pRole) throws NoCrewException {
+        if (this.pirateCrew == null){
+            throw new NoCrewException("Pirate must be in crew to have role!");
+        }
+
+        else if (this.role == null){
+            this.role = pRole;
+        }
+    }
+
     public void setRole(String pRole, Scanner myObj){
         int nInput, nMember;
         String buffer;
